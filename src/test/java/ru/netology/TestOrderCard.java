@@ -20,22 +20,20 @@ public class TestOrderCard {
         return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
-
     @Test
-    public void shouldOrderCardDelivery() {
-        String data = generateDate(4);
-        Configuration.holdBrowserOpen = true;
-        open("http://0.0.0.0:7777/");
-        $("[placeholder='Город']").setValue("Ульяновск");
-        //String data = LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=date] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] .input__control").setValue(data);
-        $("[name='name']").setValue("Летов Олег");
-        $("[name='phone']").setValue("+78002000500");
-        $(".checkbox").click();
-        $(".button__text").click();
-        $(Selectors.withText("Успешно")).shouldBe(visible, Duration.ofSeconds(15));
-        $(".notification__content")
-                .shouldHave(Condition.text("Встреча успешно забронирована на " + data), Duration.ofSeconds(15));
+    void shouldSendForm() {
+        String planningDate = generateDate(4);
+        open("http://localhost:9999");
+        $("[data-test-id='city'] input").setValue("Ульяновск");
+        $("[data-test-id='date'] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id='date'] input").setValue(planningDate);
+        $$("[data-day]").get(1).click();
+        $("[data-test-id='name'] input").setValue("Олег Зимов");
+        $("[data-test-id='phone'] input").setValue("+78002000600");
+        $(".checkbox__box").click();
+        $("button.button").click();
+        $("[data-test-id='notification']").should(appear, Duration.ofSeconds(20));
+        $("[class='notification__title']").shouldHave(exactText("Успешно!"));
+        $("[class='notification__content']").shouldHave(text("Встреча успешно забронирована на " + planningDate));
     }
 }
